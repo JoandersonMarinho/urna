@@ -1,9 +1,10 @@
-module urna (clock, numero, confirma, reset, finaliza, hex0, hex1, hex2, hex3);
+module urna (clock, numero, confirma, corrige, reset, finaliza, hex0, hex1, hex2, hex3);
 
 	input clock;
 	input confirma;						//key0
 	input reset;						//key1
-	input finaliza;						//key2
+	input finaliza;	                                        //key2
+	input corrige;
 	input [3:0] numero;					//switch
 	
 	output reg [6:0] hex0, hex1, hex2, hex3, hex4;				//display 7 seg
@@ -13,7 +14,7 @@ module urna (clock, numero, confirma, reset, finaliza, hex0, hex1, hex2, hex3);
 
 	//Estados
 	parameter inicial = 0, verifica = 1, exibeCandidato = 2, computaVoto = 3, exibeVencedor = 4;
-	parameter numCand1 = 1, numCand2 = 2; numCand3=3, numCand=4;
+	parameter numCand1 = 1, numCand2 = 2; numCand3=3, numCand=4, votoBranco=5;
 
 	//Exibir Estado Atual
 	always@(*) 
@@ -61,10 +62,15 @@ module urna (clock, numero, confirma, reset, finaliza, hex0, hex1, hex2, hex3);
 				hex0 = 7'b0011001;//4
 				end
 				
+				else if(numero == 5) // opcao de voto nulo
+				begin
+				hex3 = 7'b0101011;
+				hex2 = 7'b1100011;
+				hex1 = 7'b1000111;
+				hex0 = 7'b0100011;
 				end
 				
-				
-				
+				end
 				computaVoto: hex0 		<= 7'b0110000; // 3 
 				exibeVencedor: hex0 	<= 7'b0011001; // 4
 		endcase
@@ -92,6 +98,15 @@ module urna (clock, numero, confirma, reset, finaliza, hex0, hex1, hex2, hex3);
 								estadoAtual <= exibeCandidato; 
 							else if(numero == numCand2)
 								estadoAtual <= exibeCandidato;
+								
+							else if(numero==numCand3)
+								estadoAtual<=exibeCandidato;
+							
+							else if(numero == numCand4)
+								estadoAtual <=exibeCandidato;
+								
+							else if(numero == votoNulo)
+								estadoAtual<=exibeCandidato;
 							else estadoAtual <= inicial;
 							  
 					exibeCandidato: 

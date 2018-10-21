@@ -1,130 +1,153 @@
-module urna (BUG, clock, numero, confirma, corrige, reset, finaliza, hex0, hex1, hex2, hex3);
+`timescale 1ns/1ns
 
-input clock;
-input BUG;
-input confirma;						//key0
-input reset;						//key1
-input finaliza;	                                        //key2
-input corrige;
-input [3:0] numero;					//switch
+module urna (
+reset,clock,botao0,
+    HEX0, sw);
 
-output reg [6:0] hex0, hex1, hex2, hex3;				//display 7 seg
+    input reset;
+    input clock;
+    input botao0;
+    //tri0 reset;
+    //tri0 botao0;
+    output HEX0;
+    reg [6:0] HEX0;
+    reg [6:0] reg_HEX0;
+    reg [4:0] estado;
+    reg [4:0] estado_atual;
+	 input sw[2:0] number, numberCandidato1, numberCandidato2, numberCandidato3;
+	 reg [6:0] candidato1, candidato2, candidato3;
+	 reg block ;
+	 reg rst;
+	 
+	 //parameter candidato1 =1, candidato2=2, candidato3;
+	 reg [2:0] candidato1, candidato2, candidato3;
+	 reg init;
+	 
+    parameter Espera=0,Apura=1,Computa=2,Exibe=3,Verifica=4;
 
-reg [9:0] cand1 = 0, cand2 = 0, cand3=0, cand4=0;		//votos computados
-reg [3:0] estadoAtual = inicial;
+    initial begin 
+		estado_atual <= Espera;
+    end  
 
-//Estados
-parameter inicial = 0, verifica = 1, exibeCandidato = 2, computaVoto = 3, exibeVencedor = 4;
-parameter numCand1 = 1, numCand2 = 2, numCand3 = 3, numCand4 = 4, votoNulo = 5;
-
-//Exibir Estado Atual
-always@(*) 
-	
-	begin
-		case(estadoAtual)
-			inicial: begin 
-			hex0 			= 	7'b1000000; // 0
-			hex1 			= 	7'b1111111; // 1
-			hex2 			= 	7'b1111111; // 2
-			hex3 			= 	7'b1111111; // 3
-			end
-			 
-			verifica:
-				
-			exibeCandidato://Começo do estado que exibe o candidato
-			begin
-			if(numero == 1 ) // caso o numero do candidato 1 seja selecionado nas chaves
-			begin
-			hex3 = 7'b1000110; //c
-			hex2 = 7'b0001000;//a
-			hex1 = 7'b0101011;//n
-			hex0 = 7'b1111001;//1
-			end
+	 //Da erro se Colocar o reset aqui!
+    always @(posedge clock) begin
 			
-			if(numero == 2) // caso o numero do candidato 2 seja selecionado nas chaves
-			begin
-			
-			hex3 = 7'b1000110;
-			hex2 = 7'b0001000;
-			hex1 = 7'b0101011;
-			hex0=  7'b0100100; //2
-			end
-			
-			if(numero == 3)  // caso o numero do candidato 3 seja selecionado nas chaves
-			begin
-			hex3 = 7'b1000110;
-			hex2 = 7'b0001000;
-			hex1 = 7'b0101011;
-			hex0 = 7'b0110000; //3
-			end
-			
-			if(numero == 4) //  // caso o numero do candidato 4 seja selecionado nas chaves
-			begin
-			hex3 = 7'b1000110;
-			hex2 = 7'b0001000;
-			hex1 = 7'b0101011;
-			hex0 = 7'b0011001;//4
-			end
-			//if ({numero} == 4'b0101) // opcao de voto nulo
-			else begin
-			hex3 = 7'b0101011;
-			hex2 = 7'b1100011;
-			hex1 = 7'b1000111;
-			hex0 = 7'b0100011;
-			end
-			
-			end
-			computaVoto: 
-			hex0 		<= 7'b0110000; // 3 
-			exibeVencedor: 
-			hex0 	<= 7'b0000000; // 4
-			endcase
-	
-			end	
+			case (estado_atual)
 
-
-always@(posedge clock or negedge reset or negedge finaliza) 
-
-	begin
-
-		if(~finaliza)
-			estadoAtual <= exibeVencedor;
-		if(~reset)
-			estadoAtual <= inicial;
-		
-		else begin
-		
-			case(estadoAtual)
-				inicial : 
-						if (numero != 4'b0000 & BUG) estadoAtual <= verifica;
-				
-				verifica:
-				 
-				begin
-						if(numero == 1)
-							estadoAtual <= exibeCandidato; 
-						if(numero == 2)
-							estadoAtual <= exibeCandidato;	
-						if(numero == 3)
-							estadoAtual<=exibeCandidato;
+					Espera: begin
+						HEX0 <= 7'b1001111;//1
 						
-						if(numero == 4)
-							estadoAtual <=exibeCandidato;
-							
-						if(numero == votoNulo)
-							estadoAtual<=exibeCandidato;
-						else estadoAtual <= inicial;
-					end	  
-				exibeCandidato: 
-						if(!confirma)
-							estadoAtual <= computaVoto;
-						else estadoAtual <= inicial;
-								
-				computaVoto: estadoAtual <= inicial;
-				
-			endcase
+					end
+					
+					Verifica: begin
+					if(numbercandidato1 == 3'b001) // exibir o numero do candidato 1
+					begin
+					// código do display para exibir o numero no display
+					//Chamar o modulo com o nome dele aqui(LCD)
+					end	
+					
+					if(numbercandidato1 == 3'b010) // exibir o numero do candidato 2
+					begin
+					// código do display para exibir o numero no display
+					//Chamar o modulo com o nome dele aqui(LCD)
+					end	
+					
+					if(numbercandidato1 == 3'b011) // exibir o numero do candidato 3
+					begin
+					// código do display para exibir o numero no display
+					//Chamar o modulo com o nome dele aqui(LCD)
+					end	
+					
+					 Apura: begin
+					 if(numbercandidato1 == 3'b001) // testa se o que está armazenado em numcandidato1 é o numero 1
+					 begin // se for, computa o voto para candidato1
+					 candidato1 = candidato1+1;
+					 //Exibir mensagem de voto apurado
+						HEX0 <= 7'b0000110; // 3	
+					 end
+					 
+					 if(numbercandidato1 == 3'b010) // testa se o que está armazenado em numcandidato1 é o numero 2
+					 begin 
+					 candidato2 = candidato2+1;
+					 //Exibir mensagem de voto apurado
+						HEX0 <= 7'b0000110; // 3	
+					 end
+						
+					if(numbercandidato1 == 3'b011) // testa se o que está armazenado em numcandidato1 é o numero 3
+					 begin 
+					 candidato3 = candidato3+1;
+					 //Exibir mensagem de voto apurado
+						HEX0 <= 7'b0000110; // 3	
+					 end
+				endcase
+    end
+	 
+
+	always @( negedge botao0 or  negedge reset) begin
 		
+		if(!reset)begin 
+			estado_atual = Espera;
+		end
+		
+		else begin 
+		
+				case (estado_atual)
+
+					Espera: begin
+
+						if (botao0 == 0) 
+							estado_atual <= Verifica;
+						else
+							estado_atual <= Espera;
+					 end
+					 
+					 Verifica: begin
+					 
+						if(number == 3'b001) // caso o candidato 1 exista, deve ser exibido seu numero no outro always
+						number = numberCandidato1;  //joga o número digitado pelo candidato para a variavel numberCandidato1 para
+						// para ser verificado no outro always
+							
+						if(number == 3'b001 && botao0 == 1'b0)
+						begin
+						number = numberCandidato1;
+						estado_atual<=apura;
+						end
+						
+						if(number == 3'b010) // caso o candidato 2 exista, deve ser exibido seu numero e nome no outro always
+						number = numberCandidato2; 
+							
+						if(number == 3'b010 && botao0 == 1'b0)
+						begin
+						number = numberCandidato2;
+						estado_atual<=apura;
+						end
+						
+						if(number == 3'b011) 
+						number = numberCandidato3;  
+							
+						if(number == 3'b011 && botao0 == 1'b0)
+						begin
+						number = numberCandidato3;
+						estado_atual<=apura;
+						end
+						
+						else
+							estado_atual <= Verifica;
+					 end
+					 
+					 Apura: begin
+
+						if (botao0 == 1'b0)
+							estado_atual <= Espera;
+						else
+							estado_atual <= Apura;
+						
+					end
+						
+				endcase
+		
+		end
 
 	end
-	end
+	 
 endmodule
